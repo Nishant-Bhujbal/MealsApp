@@ -1,10 +1,13 @@
+import { useLayoutEffect } from "react";
 import { View,Text, StyleSheet, FlatList } from "react-native";
-import {MEALS} from '../data/dummy-data'
+
+
+import {MEALS , CATEGORIES} from '../data/dummy-data'
 import MealItem from "../components/MealItem";
 
 
 
-function MealsOverviewScreen({route}) {
+function MealsOverviewScreen({route,navigation}) {
     // parameters recieved from the back screen
     const catID = route.params.categoryId;
 
@@ -13,9 +16,31 @@ function MealsOverviewScreen({route}) {
         return mealItem.categoryIds.indexOf(catID) >= 0;
     } )
 
+    useLayoutEffect(()=> {
+        const categoryTitle = CATEGORIES.find(
+            (category)=> category.id === catID
+        ).title;
+    
+        navigation.setOptions({
+            title : categoryTitle,
+        });
+    },[catID,navigation])
+
+
 
     function renderMealItem(itemData){
-        return <MealItem title={itemData.item.title} />
+        // when we have many props we can make a object like this
+        const item = itemData.item;
+        const mealItemProps = {
+            id : item.id,
+            title : item.title,
+            imageUrl : item.imageUrl,
+            affordability : item.affordability,
+            complexity : item.complexity,
+            duration : item.duration,
+        };
+        // and pass it like this using spread operator
+        return <MealItem {...mealItemProps}/>
     }
 
   return (
