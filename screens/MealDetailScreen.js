@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useContext, useLayoutEffect } from "react";
 import { View , Text , Image , StyleSheet, ScrollView, Button} from "react-native";
 
 import { MEALS } from "../data/dummy-data";
@@ -6,15 +6,24 @@ import MealDetails from "../components/MealDetails";
 import Subtitle from "../components/MealDetail/Subtitle";
 import List from "../components/MealDetail/List";
 import IconButton from "../components/IconButton";
+import { FavouriteContext } from "../store/context/favourites-context";
 
 function MealDetailScreen({route,navigation}) {
+    const favouriteMealsCtx = useContext(FavouriteContext);
 
     const mealId = route.params.mealId;
 
     const selectedMeal = MEALS.find((meal) => meal.id === mealId);
 
-    function headerButtonPressHandler(){
-      console.log("Pressed")
+    const mealIsFavourite = favouriteMealsCtx.ids.includes(mealId);
+
+    function changeFavouriteStatus(){
+      if(mealIsFavourite){
+        favouriteMealsCtx.removeFavourite(mealId);
+      }
+      else{
+        favouriteMealsCtx.addFavourite(mealId);
+      }
     }
 
     // used to add a button to the navbar or header of the sccreen
@@ -22,12 +31,12 @@ function MealDetailScreen({route,navigation}) {
       navigation.setOptions({
         headerRight : ()=> {
           return <IconButton 
-          onTapped={headerButtonPressHandler} 
-          icon='star' 
+          onTapped={changeFavouriteStatus} 
+          icon={mealIsFavourite ? 'star' : 'star-outline'}
           colour='white'/>
         }
       })
-    },[navigation,headerButtonPressHandler]);
+    },[navigation,changeFavouriteStatus]);
 
 
   return (
